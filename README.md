@@ -58,14 +58,14 @@ Note: We use `amazoncorretto:21-alpine` in Production.
 
 ## Results
 
-| Agent Mode | Standard Threaading Result| Virtual Threading Result |
+| Agent Mode | Standard Threading Result| Virtual Threading Result |
 | --- | --- | --- |
 | Without Agent (Manual Otel SDK setup) | ✅ `Span.current()` propagated correctly | ✅ `Span.current()` propagated correctly |
 | WITH Agent | ✅ `Span.current()` propagated correctly | ❌ `Span.current()` not propagated |
 
 ### With Auto Instrumentation Agent
 
-The repro jar is run with the Auto Instrumentation Agent attached, and therefore does not touch the Vertx or OpenTelemetrey configuration and launches a vanilla Vertx instance.
+The repro jar is run with the Auto Instrumentation Agent attached, and therefore does not touch the Vertx or OpenTelemetry configuration and launches a vanilla Vertx instance.
 
 Run arguments: 
 
@@ -104,7 +104,7 @@ Outcomes:
 
 ### Without Auto Instrumentation Agent
 
-To prove what we have been doing has worked before switching to Virtual threads, the repro contains an example that does not use the Auto Instrumentation agent.
+The results below demonstrate that using `Span.current()` works with Virtual Threads when the OpenTelemetry SDK is manually initialized.
 
 Run arguments: 
 

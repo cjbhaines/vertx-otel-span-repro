@@ -95,9 +95,10 @@ Result: ❌ `Span.current()` is not propagated
 
 Outcomes:
 - The span is started by Netty
+- The span contains only the default information added by the Auto Instrumentation Agent
 - The middleware handler was incorrectly pointing at a no-op span
 - The custom property was not added due to the no-op span
-- The span has a no-op span ID
+- The span retrieved by the handlers has a no-op span ID
 
 ![Grafana Visualization - With Agent - Virtual Threading Model](/screenshots/with_agent_grafana_virtual.png)
 

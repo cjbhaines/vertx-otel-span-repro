@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+
+  tempo:
+    image: grafana/tempo:2.0.1
+    command: [ "-config.file=/etc/tempo.yml" ]
+    volumes:
+      - ./telemetry/config/tempo-config.yml:/etc/tempo.yml
+      - ./telemetry/config/tempo-overrides.yml:/etc/overrides.yml
+    ports:
+      - "3200:3200"
+      - "4317:4317"
+    healthcheck:
+      interval: 5s
+      retries: 10
+      test: wget --no-verbose --tries=1 --spider http://localhost:3200/status || exit 1
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.40.0
+    command: ["--config=/etc/otel-collector-config.yml"]
+    volumes:
+      - ./telemetry/config/otel-collector-config.yml:/etc/otel-collector-config.yml
+    ports:
+      - "5555:5555"
+      - "6666:6666"
+    depends_on:
+      tempo:
+        condition: service_healthy
+
+  grafana:
+    image: grafana/grafana:10.2.3
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_BASIC_ENABLED=false
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    volumes:
+      - ./telemetry/config/grafana:/etc/grafana/provisioning/
+    ports:
+      - "3500:3000"
+    depends_on:
+      tempo:
+        condition: service_healthy
+    healthcheck:
+      interval: 5s
+      retries: 10
+      test: wget --no-verbose --tries=1 --spider http://localhost:3500 || exit 1

@@ -1,0 +1,36 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:5555
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+
+  filter:
+    metrics:
+      exclude:
+        match_type: regexp
+        metric_names:
+          - process[\._]runtime[\._]jvm.*
+          - http[\._]server.*
+          - http[\._]client.*
+
+exporters:
+
+  otlp:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+service:
+  telemetry:
+    logs:
+      level: debug
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp]
